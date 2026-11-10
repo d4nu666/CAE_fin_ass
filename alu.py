@@ -1,0 +1,62 @@
+"""
+alu.py - arithmetic and logic instructions.             OWNER: Person A
+
+    0x33  R-type : add sub sll slt sltu xor srl sra or and
+    0x13  I-type : addi slti sltiu xori ori andi slli srli srai
+    0x37  lui
+    0x17  auipc
+
+Every handler has the signature  handler(cpu, inst) -> next_pc
+and normally returns cpu.pc + 4.
+
+Remember:
+    * write results with cpu.write_reg(rd, value) - it wraps to 32 bits
+    * signed compare / arithmetic shift need s32(); unsigned compare uses the raw value
+    * shift amount = low 5 bits (rs2 value & 0x1F, or imm & 0x1F)
+    * sub/sra and srai are told apart from add/srl/srli by funct7 == 0x20
+"""
+
+from cpu import funct3, funct7, rd, rs1, rs2, imm_i, imm_u, s32, u32
+
+
+def exec_r_type(cpu, inst):
+    a = cpu.reg[rs1(inst)]
+    b = cpu.reg[rs2(inst)]
+    f3, f7 = funct3(inst), funct7(inst)
+
+    # TODO(A): add sub sll slt sltu xor srl sra or and
+    raise NotImplementedError(f"R-type funct3={f3} funct7=0x{f7:02x}")
+
+    return cpu.pc + 4
+
+
+def exec_i_type(cpu, inst):
+    a = cpu.reg[rs1(inst)]
+    imm = imm_i(inst)
+    f3 = funct3(inst)
+
+    if f3 == 0x0:                                   # addi  (example)
+        cpu.write_reg(rd(inst), a + imm)
+    else:
+        # TODO(A): slti sltiu xori ori andi slli srli srai
+        raise NotImplementedError(f"I-type funct3={f3}")
+
+    return cpu.pc + 4
+
+
+def exec_lui(cpu, inst):
+    # TODO(A): rd = imm_u
+    raise NotImplementedError("lui")
+
+
+def exec_auipc(cpu, inst):
+    # TODO(A): rd = pc + imm_u
+    raise NotImplementedError("auipc")
+
+
+HANDLERS = {
+    0x33: exec_r_type,
+    0x13: exec_i_type,
+    0x37: exec_lui,
+    0x17: exec_auipc,
+}
