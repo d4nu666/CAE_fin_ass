@@ -35,10 +35,20 @@ def exec_i_type(cpu, inst):
     imm = imm_i(inst)
     f3 = funct3(inst)
 
-    if f3 == 0x0:                                   # addi  (example)
+    if f3 == 0x0:       # addi
         cpu.write_reg(rd(inst), a + imm)
+
+    elif f3 == 0x4:     # xori
+        cpu.write_reg(rd(inst), a ^ imm)
+
+    elif f3 == 0x6:     # ori
+        cpu.write_reg(rd(inst), a | imm)
+
+    elif f3 == 0x7:     # andi
+        cpu.write_reg(rd(inst), a & imm)
+
     else:
-        # TODO(A): slti sltiu xori ori andi slli srli srai
+        # Remaining: slti sltiu slli srli srai
         raise NotImplementedError(f"I-type funct3={f3}")
 
     return cpu.pc + 4
