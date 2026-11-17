@@ -66,8 +66,17 @@ def exec_i_type(cpu, inst):
 
         else:
             raise NotImplementedError("Invalid right-shift encoding") 
+
+    elif f3 == 0x2:     # slti
+        result = 1 if s32(a) < imm else 0
+        cpu.write_reg(rd(inst), result)
+
+    elif f3 == 0x3:     # sltiu
+        result = 1 if a < u32(imm) else 0
+        cpu.write_reg(rd(inst), result)    
+        
     else:
-        # Remaining: slti sltiu
+        # Unsupported encoding
         raise NotImplementedError(f"I-type funct3={f3}")
 
     return cpu.pc + 4
