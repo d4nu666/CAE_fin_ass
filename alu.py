@@ -47,8 +47,27 @@ def exec_i_type(cpu, inst):
     elif f3 == 0x7:     # andi
         cpu.write_reg(rd(inst), a & imm)
 
+    elif f3 == 0x1:     # slli
+        if funct7(inst) != 0x00:
+            raise NotImplementedError("Invalid slli encoding")
+
+        shamt = (inst >> 20) & 0x1F
+        cpu.write_reg(rd(inst), a << shamt)
+
+    elif f3 == 0x5:     # srli or srai
+        shamt = (inst >> 20) & 0x1F
+        f7 = funct7(inst)
+
+        if f7 == 0x00:       # srli
+            cpu.write_reg(rd(inst), a >> shamt)
+
+        elif f7 == 0x20:     # srai
+            cpu.write_reg(rd(inst), s32(a) >> shamt)
+
+        else:
+            raise NotImplementedError("Invalid right-shift encoding") 
     else:
-        # Remaining: slti sltiu slli srli srai
+        # Remaining: slti sltiu
         raise NotImplementedError(f"I-type funct3={f3}")
 
     return cpu.pc + 4
