@@ -126,13 +126,13 @@ def exec_i_type(cpu, inst):
 
 
 def exec_lui(cpu, inst):
-    # TODO(A): rd = imm_u
-    raise NotImplementedError("lui")
+    cpu.write_reg(rd(inst), imm_u(inst))
+    return cpu.pc + 4
 
 
 def exec_auipc(cpu, inst):
-    # TODO(A): rd = pc + imm_u
-    raise NotImplementedError("auipc")
+    cpu.write_reg(rd(inst), cpu.pc + imm_u(inst))
+    return cpu.pc + 4
 
 
 HANDLERS = {
