@@ -59,8 +59,14 @@ def exec_store(cpu, inst):
     value = cpu.reg[rs2(inst)]
     f3 = funct3(inst)
 
-    # TODO(C): sb(0) sh(1) sw(2)
-    raise NotImplementedError(f"store funct3={f3}")
+    if f3 == 0:
+        write_mem(cpu, addr, 1, value)
+    elif f3 == 1:
+        write_mem(cpu, addr, 2, value)
+    elif f3 == 2:
+        write_mem(cpu, addr, 4, value)
+    else:
+        raise RuntimeError(f"invalid store funct3={f3} at pc=0x{cpu.pc:08x}")
 
     return cpu.pc + 4
 
