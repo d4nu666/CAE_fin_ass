@@ -34,7 +34,8 @@ def run_one(binfile: Path, verbose: bool) -> bool:
         out = Path(tmp) / "out.res"
         try:
             proc = subprocess.run(
-                [sys.executable, str(SIM), str(binfile), "-q", "-o", str(out)],
+                [sys.executable, str(SIM), str(binfile), "-q", "-o", str(out)]
+                + (["--venus"] if "extra" in binfile.parts else []),
                 capture_output=True, text=True, timeout=TIMEOUT,
             )
         except subprocess.TimeoutExpired:
