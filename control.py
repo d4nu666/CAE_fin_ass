@@ -29,25 +29,52 @@ def exec_branch(cpu, inst):
     b = cpu.reg[rs2(inst)]
     f3 = funct3(inst)
 
-    # TODO(B): decide `taken` for beq(0) bne(1) blt(4) bge(5) bltu(6) bgeu(7)
-    raise NotImplementedError(f"branch funct3={f3}")
+    if f3 == 0:
+        taken = a == b
+    elif f3 == 1:
+        taken = a != b
+    elif f3 == 4:
+        taken = s32(a) < s32(b)
+    elif f3 == 5:
+        taken = s32(a) >= s32(b)
+    elif f3 == 6:
+        taken = a < b
+    elif f3 == 7:
+        taken = a >= b
+    else:
+        raise RuntimeError(f"invalid branch funct3={f3} at pc=0x{cpu.pc:08x}")
 
     return cpu.pc + imm_b(inst) if taken else cpu.pc + 4
 
 
 def exec_jal(cpu, inst):
-    # TODO(B)
-    raise NotImplementedError("jal")
+    cpu.write_reg(rd(inst), cpu.pc + 4)
+    return cpu.pc + imm_j(inst)
 
 
 def exec_jalr(cpu, inst):
-    # TODO(B)
-    raise NotImplementedError("jalr")
+    target = u32(cpu.reg[rs1(inst)] + imm_i(inst)) & ~1
+    cpu.write_reg(rd(inst), cpu.pc + 4)
+    return target
 
 
 def exec_ecall(cpu, inst):
-    # TODO(B): at least a7 == 10 -> cpu.running = False
-    raise NotImplementedError(f"ecall a7={cpu.reg[A7]}")
+    code = cpu.reg[A7]
+    a0 = cpu.reg[A0]
+    if code in (10, 93):
+        cpu.running = False
+    elif code == 1:
+        print(s32(a0), end="", flush=True)
+    elif code == 4:
+        end = cpu.mem.find(0, a0)
+        if end < 0:
+            end = len(cpu.mem)
+        print(cpu.mem[a0:end].decode("ascii", errors="replace"), end="", flush=True)
+    elif code == 11:
+        print(chr(a0 & 0xFF), end="", flush=True)
+    else:
+        raise RuntimeError(f"unsupported ecall a7={code} at pc=0x{cpu.pc:08x}")
+    return cpu.pc + 4
 
 
 HANDLERS = {
