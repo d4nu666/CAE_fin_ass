@@ -73,9 +73,11 @@ def main() -> None:
     ap.add_argument("-v", "--verbose", action="store_true", help="print registers after every instruction")
     ap.add_argument("-q", "--quiet", action="store_true", help="do not print the final registers")
     ap.add_argument("--max-steps", type=int, default=10_000_000)
+    ap.add_argument("--venus", action="store_true", help="Venus ecall convention: code in a0, argument in a1")
     args = ap.parse_args()
 
     cpu = CPU()
+    cpu.venus = args.venus
     load_program(cpu, args.program)
     steps = run(cpu, args.verbose, args.max_steps)
 
