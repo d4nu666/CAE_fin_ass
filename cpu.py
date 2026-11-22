@@ -96,6 +96,7 @@ class CPU:
         self.mem = bytearray(MEM_SIZE)    # byte-addressable, little-endian
         self.program_end = 0              # address just past the last instruction
         self.running = True               # set to False by ecall exit
+        self.venus = False
 
     def write_reg(self, r: int, value: int) -> None:
         """Write a register; wraps to 32 bits and ignores writes to x0."""

@@ -21,7 +21,7 @@ Remember:
 
 from cpu import funct3, rd, rs1, rs2, imm_b, imm_i, imm_j, s32, u32
 
-A0, A7 = 10, 17
+A0, A1, A7 = 10, 11, 17
 
 
 def exec_branch(cpu, inst):
@@ -59,20 +59,22 @@ def exec_jalr(cpu, inst):
 
 
 def exec_ecall(cpu, inst):
-    code = cpu.reg[A7]
-    a0 = cpu.reg[A0]
-    if code in (10, 93):
+    if cpu.venus:
+        code, arg, exits = cpu.reg[A0], cpu.reg[A1], (10, 17)
+    else:
+        code, arg, exits = cpu.reg[A7], cpu.reg[A0], (10, 93)
+    if code in exits:
         cpu.running = False
     elif code == 1:
-        print(s32(a0), end="", flush=True)
+        print(s32(arg), end="", flush=True)
     elif code == 4:
-        end = cpu.mem.find(0, a0)
+        end = cpu.mem.find(0, arg)
         if end < 0:
             end = len(cpu.mem)
-        print(cpu.mem[a0:end].decode("ascii", errors="replace"), end="", flush=True)
+        print(cpu.mem[arg:end].decode("ascii", errors="replace"), end="", flush=True)
     elif code == 11:
-        print(chr(a0 & 0xFF), end="", flush=True)
-    else:
+        print(chr(arg & 0xFF), end="", flush=True)
+    elif not cpu.venus:
         raise RuntimeError(f"unsupported ecall a7={code} at pc=0x{cpu.pc:08x}")
     return cpu.pc + 4
 
