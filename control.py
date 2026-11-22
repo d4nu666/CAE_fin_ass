@@ -48,13 +48,14 @@ def exec_branch(cpu, inst):
 
 
 def exec_jal(cpu, inst):
-    # TODO(B)
-    raise NotImplementedError("jal")
+    cpu.write_reg(rd(inst), cpu.pc + 4)
+    return cpu.pc + imm_j(inst)
 
 
 def exec_jalr(cpu, inst):
-    # TODO(B)
-    raise NotImplementedError("jalr")
+    target = u32(cpu.reg[rs1(inst)] + imm_i(inst)) & ~1
+    cpu.write_reg(rd(inst), cpu.pc + 4)
+    return target
 
 
 def exec_ecall(cpu, inst):
