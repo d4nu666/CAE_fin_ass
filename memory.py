@@ -37,9 +37,20 @@ def exec_load(cpu, inst):
     addr = u32(cpu.reg[rs1(inst)] + imm_i(inst))
     f3 = funct3(inst)
 
-    # TODO(C): lb(0) lh(1) lw(2) lbu(4) lhu(5)
-    raise NotImplementedError(f"load funct3={f3}")
+    if f3 == 0:
+        value = sext(read_mem(cpu, addr, 1), 8)
+    elif f3 == 1:
+        value = sext(read_mem(cpu, addr, 2), 16)
+    elif f3 == 2:
+        value = read_mem(cpu, addr, 4)
+    elif f3 == 4:
+        value = read_mem(cpu, addr, 1)
+    elif f3 == 5:
+        value = read_mem(cpu, addr, 2)
+    else:
+        raise RuntimeError(f"invalid load funct3={f3} at pc=0x{cpu.pc:08x}")
 
+    cpu.write_reg(rd(inst), value)
     return cpu.pc + 4
 
 
