@@ -16,16 +16,21 @@ Remember:
 from cpu import funct3, rd, rs1, rs2, imm_i, imm_s, sext, u32
 
 
+def check_addr(cpu, addr, size):
+    if addr + size > len(cpu.mem):
+        raise RuntimeError(f"memory access out of bounds: 0x{addr:08x} ({size} bytes) at pc=0x{cpu.pc:08x}")
+
+
 def read_mem(cpu, addr, size):
     """Return `size` bytes at `addr` as an unsigned int."""
-    # TODO(C): bounds check + int.from_bytes
-    raise NotImplementedError("read_mem")
+    check_addr(cpu, addr, size)
+    return int.from_bytes(cpu.mem[addr:addr + size], "little")
 
 
 def write_mem(cpu, addr, size, value):
     """Store the low `size` bytes of `value` at `addr`."""
-    # TODO(C): bounds check + value.to_bytes
-    raise NotImplementedError("write_mem")
+    check_addr(cpu, addr, size)
+    cpu.mem[addr:addr + size] = (value & ((1 << (8 * size)) - 1)).to_bytes(size, "little")
 
 
 def exec_load(cpu, inst):
