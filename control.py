@@ -29,8 +29,20 @@ def exec_branch(cpu, inst):
     b = cpu.reg[rs2(inst)]
     f3 = funct3(inst)
 
-    # TODO(B): decide `taken` for beq(0) bne(1) blt(4) bge(5) bltu(6) bgeu(7)
-    raise NotImplementedError(f"branch funct3={f3}")
+    if f3 == 0:
+        taken = a == b
+    elif f3 == 1:
+        taken = a != b
+    elif f3 == 4:
+        taken = s32(a) < s32(b)
+    elif f3 == 5:
+        taken = s32(a) >= s32(b)
+    elif f3 == 6:
+        taken = a < b
+    elif f3 == 7:
+        taken = a >= b
+    else:
+        raise RuntimeError(f"invalid branch funct3={f3} at pc=0x{cpu.pc:08x}")
 
     return cpu.pc + imm_b(inst) if taken else cpu.pc + 4
 
