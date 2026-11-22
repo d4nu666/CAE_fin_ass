@@ -58,8 +58,22 @@ def exec_jalr(cpu, inst):
 
 
 def exec_ecall(cpu, inst):
-    # TODO(B): at least a7 == 10 -> cpu.running = False
-    raise NotImplementedError(f"ecall a7={cpu.reg[A7]}")
+    code = cpu.reg[A7]
+    a0 = cpu.reg[A0]
+    if code in (10, 93):
+        cpu.running = False
+    elif code == 1:
+        print(s32(a0), end="", flush=True)
+    elif code == 4:
+        end = cpu.mem.find(0, a0)
+        if end < 0:
+            end = len(cpu.mem)
+        print(cpu.mem[a0:end].decode("ascii", errors="replace"), end="", flush=True)
+    elif code == 11:
+        print(chr(a0 & 0xFF), end="", flush=True)
+    else:
+        raise RuntimeError(f"unsupported ecall a7={code} at pc=0x{cpu.pc:08x}")
+    return cpu.pc + 4
 
 
 HANDLERS = {
